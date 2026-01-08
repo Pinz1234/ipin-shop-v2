@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="IPIN MARKET - Solusi Hosting Pterodactyl, Sewa Bot WhatsApp, dan Script Bot Terbaik.">
+  <meta name="theme-color" content="#8b5cf6">
+  <title>IPIN MARKET | Digital Store</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+
+  <style>
+    :root {
+      /* --- CORE COLORS (Dark Mode Default) --- */
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --primary-gradient: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+      --secondary: #22d3ee;
+      
+      /* Backgrounds */
+      --bg-dark: #020617;
+      --bg-card: #0f172a;
+      --bg-card-hover: #1e293b;
+      --bg-input: #020617;
+      
+      /* Glassmorphism */
+      --glass: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      
+      /* Text Colors */
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-invert: #020617;
+      
+      /* Status Colors */
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      
+      /* Effects */
+      --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.2);
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition-fast: 0.2s ease;
+      --transition-normal: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* --- LIGHT MODE VARIABLES --- */
+    body.light-mode {
+      --bg-dark: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-input: #f1f5f9;
+      
+      --glass: rgba(0, 0, 0, 0.02);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-invert: #ffffff;
+      
+      --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.15);
+    }
+
+    /* Global Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; }
+    
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      background-color: var(--bg-dark); 
+      color: var(--text-main); 
+      line-height: 1.6; 
+      overflow-x: hidden; 
+      min-height: 100vh; 
+      position: relative;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+    
+    /* Background Animation (Abstract Blobs) */
+    .bg-animation { 
+      position: fixed; 
+      top: 0; left: 0; 
+      width: 100vw; height: 100vh; 
+      z-index: -1; 
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.08), transparent 40%), 
+        radial-gradient(circle at 85% 85%, rgba(34, 211, 238, 0.08), transparent 40%); 
+      pointer-events: none; 
+    }
+    
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+    
+    /* --- LOADER --- */
+    #loading-screen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease, visibility 0.5s; }
+    .loader-spinner { width: 60px; height: 60px; border: 4px solid rgba(139, 92, 246, 0.2); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s infinite linear; margin-bottom: 20px; }
+    .loader-text { font-family: 'Outfit', sans-serif; font-weight: 700; letter-spacing: 3px; font-size: 0.9rem; color: var(--text-muted); animation: pulse 2s infinite; text-transform: uppercase; }
+
+    /* --- HEADER & NAV --- */
+    header { 
+      position: fixed; top: 0; width: 100%; z-index: 1000; 
+      background: rgba(var(--bg-dark), 0.8); 
+      backdrop-filter: blur(16px); 
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+      transition: all 0.3s ease;
+    }
+    
+    .navbar { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+    
+    .logo { 
+      color: var(--text-main); 
+      font-family: 'Outfit', sans-serif; 
+      font-weight: 800; 
+      font-size: 1.6rem; 
+      text-decoration: none; 
+      display: flex; align-items: center; gap: 10px; 
+      letter-spacing: -0.5px;
+    }
+    .logo span { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+    
+    /* Theme Toggle Button */
+    .theme-toggle {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: var(--transition-fast);
+    }
+    .theme-toggle:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--primary); transform: rotate(15deg); }
+
+    .hamburger { 
+      width: 44px; height: 44px; 
+      display: flex; align-items: center; justify-content: center; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      color: var(--text-main); 
+      background: var(--glass); 
+      border: 1px solid var(--glass-border); 
+      transition: var(--transition-fast); 
+    }
+    .hamburger:hover { background: rgba(139, 92, 246, 0.2); border-color: var(--primary); }
+
+    /* --- DRAWER --- */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 1001; opacity: 0; visibility: hidden; transition: 0.3s; }
+    .drawer-overlay.show { opacity: 1; visibility: visible; }
+    
+    .drawer { 
+      position: fixed; top: 0; right: -350px; 
+      width: 300px; height: 100%; 
+      background: var(--bg-card); 
+      z-index: 1002; 
+      padding: 30px; 
+      transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+      border-left: 1px solid var(--glass-border); 
+      box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+    }
+    .drawer.show { right: 0; }
+    
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .drawer-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.2rem; color: var(--text-main); }
+    
+    .drawer-close { 
+      width: 36px; height: 36px; 
+      display: flex; align-items: center; justify-content: center; 
+      background: var(--glass); 
+      border-radius: 50%; 
+      cursor: pointer; 
+      color: var(--text-muted);
+      transition: 0.3s; 
+    }
+    .drawer-close:hover { background: var(--error); color: white; transform: rotate(90deg); }
+    
+    .drawer-menu { list-style: none; }
+    .drawer-menu li { margin-bottom: 12px; }
+    .drawer-menu a { 
+      display: flex; align-items: center; gap: 16px; 
+      padding: 16px; 
+      color: var(--text-muted); 
+      text-decoration: none; 
+      border-radius: 16px; 
+      background: var(--glass); 
+      transition: 0.3s; 
+      font-weight: 500; 
+      border: 1px solid transparent; 
+    }
+    .drawer-menu a:hover { 
+      background: rgba(139, 92, 246, 0.1); 
+      color: var(--primary); 
+      border-color: rgba(139, 92, 246, 0.3); 
+      transform: translateX(5px); 
+    }
+    .drawer-menu a i { width: 20px; text-align: center; }
+
+    /* --- HERO SECTION --- */
+    .hero { 
+      min-height: 90vh; 
+      display: flex; align-items: center; justify-content: center; 
+      position: relative; text-align: center; 
+      padding-top: 100px; 
+      padding-bottom: 50px;
+    }
+    .hero-content { max-width: 900px; position: relative; z-index: 2; }
+    
+    .badge-hero { 
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; 
+      background: rgba(139, 92, 246, 0.1); 
+      border: 1px solid rgba(139, 92, 246, 0.2); 
+      border-radius: 50px; 
+      font-size: 0.85rem; 
+      color: var(--primary); 
+      margin-bottom: 24px; 
+      font-weight: 600; 
+      letter-spacing: 1px; 
+      text-transform: uppercase; 
+      backdrop-filter: blur(4px);
+    }
+    
+    .hero h1 { 
+      font-family: 'Outfit', sans-serif; 
+      font-size: 4.5rem; 
+      line-height: 1.1; 
+      font-weight: 800; 
+      margin-bottom: 24px; 
+      background: var(--primary-gradient); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      letter-spacing: -2px; 
+      text-shadow: 0 10px 40px rgba(139, 92, 246, 0.3); 
+    }
+    
+    .hero p { 
+      font-size: 1.25rem; 
+      color: var(--text-muted); 
+      margin-bottom: 40px; 
+      max-width: 650px; 
+      margin-left: auto; 
+      margin-right: auto; 
+      font-weight: 400;
+    }
+    
+    .hero-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+    
+    .cta-button { 
+      background: var(--primary-gradient); 
+      color: white; 
+      padding: 18px 48px; 
+      border-radius: 100px; 
+      border: none; 
+      font-size: 1.1rem; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: var(--transition-normal); 
+      box-shadow: 0 10px 40px -10px var(--primary); 
+      display: inline-flex; align-items: center; gap: 12px; 
+      position: relative; overflow: hidden; 
+      text-decoration: none; 
+    }
+    .cta-button:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -10px var(--primary); }
+    
+    .cta-outline {
+      background: transparent;
+      color: var(--text-main);
+      border: 2px solid var(--glass-border);
+      padding: 16px 32px;
+      border-radius: 100px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition-fast);
+    }
+    .cta-outline:hover { border-color: var(--text-main); background: var(--glass); }
+
+    /* --- STATS SECTION --- */
+    .stats-section { padding: 40px 0; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); background: var(--bg-card); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; text-align: center; }
+    .stat-item h3 { font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; font-family: 'Outfit', sans-serif; }
+    .stat-item p { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+    /* --- PRODUCT SECTIONS --- */
+    .packages { padding: 100px 0; position: relative; }
+    .packages:nth-child(even) { background: rgba(var(--bg-card), 0.5); }
+    
+    .section-title { text-align: center; margin-bottom: 70px; }
+    .section-title h2 { font-family: 'Outfit', sans-serif; font-size: 3rem; font-weight: 700; margin-bottom: 16px; color: var(--text-main); }
+    .section-title span { color: var(--secondary); }
+    .section-title p { color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .packages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+    
+    .package-card { 
+      background: var(--bg-card); 
+      border: 1px solid var(--glass-border); 
+      border-radius: var(--radius-md); 
+      padding: 40px 30px; 
+      position: relative; 
+      transition: var(--transition-normal); 
+      display: flex; flex-direction: column; 
+      backdrop-filter: blur(10px); 
+      overflow: hidden;
+    }
+    .package-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+      background: var(--glass-border); transition: 0.3s;
+    }
+    .package-card:hover { 
+      border-color: var(--primary); 
+      transform: translateY(-10px); 
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), 0 0 20px rgba(139, 92, 246, 0.1); 
+    }
+    .package-card:hover::before { background: var(--primary); }
+    
+    .package-badge { 
+      position: absolute; top: 20px; right: 20px; 
+      background: rgba(139, 92, 246, 0.15); 
+      color: var(--primary); 
+      padding: 6px 14px; 
+      border-radius: 50px; 
+      font-size: 0.75rem; 
+      font-weight: 800; 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px; 
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+    
+    .package-name { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; color: var(--text-main); }
+    .package-price { font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 30px; display: flex; align-items: baseline; gap: 5px; }
+    .package-price span { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+    
+    .package-features { list-style: none; margin-bottom: 40px; flex-grow: 1; }
+    .package-features li { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; color: var(--text-muted); font-size: 0.95rem; }
+    .package-features li i { color: var(--secondary); font-size: 1rem; background: rgba(34, 211, 238, 0.1); padding: 5px; border-radius: 50%; }
+
+    .btn-buy-card { 
+      width: 100%; 
+      padding: 16px; 
+      border-radius: var(--radius-sm); 
+      border: 1px solid var(--glass-border); 
+      background: var(--bg-input); 
+      color: var(--text-main); 
+      font-weight: 600; 
+      cursor: pointer; 
+      transition: var(--transition-fast); 
+      text-align: center; 
+      display: block; 
+      text-decoration: none; 
+    }
+    .btn-buy-card:hover { 
+      background: var(--primary); 
+      border-color: var(--primary); 
+      color: white;
+      box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.4); 
+    }
+
+    /* --- FEATURES / WHY US SECTION --- */
+    .features-section { padding: 100px 0; background: var(--bg-dark); }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; }
+    .feature-item { padding: 30px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--glass-border); transition: 0.3s; }
+    .feature-item:hover { transform: translateY(-5px); border-color: var(--primary); }
+    .feature-icon { width: 60px; height: 60px; background: rgba(139, 92, 246, 0.1); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; }
+    .feature-item h3 { font-size: 1.25rem; color: var(--text-main); margin-bottom: 10px; font-weight: 700; }
+    .feature-item p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+    /* --- ABOUT SECTION --- */
+    .about-section { padding: 100px 0; background: var(--bg-card); position: relative; overflow: hidden; }
+    .about-container { display: flex; flex-wrap: wrap; align-items: center; gap: 50px; }
+    .about-text { flex: 1; min-width: 300px; }
+    .about-image { flex: 1; min-width: 300px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 30px; height: 400px; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
+    .about-text h2 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; margin-bottom: 20px; color: var(--text-main); }
+    .about-text p { margin-bottom: 20px; color: var(--text-muted); line-height: 1.8; }
+
+    /* --- FAQ SECTION --- */
+    .faq-section { padding: 100px 0; }
+    .faq-container { max-width: 800px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; }
+    .faq-question { width: 100%; text-align: left; background: var(--bg-card); padding: 20px; border: none; outline: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; font-weight: 600; color: var(--text-main); border-radius: 12px; transition: 0.3s; }
+    .faq-question:hover { background: var(--bg-card-hover); }
+    .faq-question i { transition: 0.3s; color: var(--primary); }
+    .faq-question.active i { transform: rotate(180deg); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: var(--bg-dark); padding: 0 20px; color: var(--text-muted); line-height: 1.6; border-radius: 0 0 12px 12px; }
+    .faq-answer p { padding: 20px 0; }
+
+    /* --- FOOTER --- */
+    footer { background: var(--bg-card); padding: 80px 0 30px; border-top: 1px solid var(--glass-border); }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+    .footer-brand h3 { font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .footer-brand p { color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; max-width: 300px; }
+    .footer-social { display: flex; gap: 15px; }
+    .footer-social a { width: 40px; height: 40px; background: var(--glass); display: flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--text-main); transition: 0.3s; border: 1px solid var(--glass-border); }
+    .footer-social a:hover { background: var(--primary); color: white; border-color: var(--primary); }
+    
+    .footer-col h4 { color: var(--text-main); font-size: 1.1rem; margin-bottom: 20px; font-weight: 700; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 12px; }
+    .footer-col a { color: var(--text-muted); text-decoration: none; transition: 0.2s; font-size: 0.95rem; }
+    .footer-col a:hover { color: var(--primary); padding-left: 5px; }
+    
+    .footer-bottom { border-top: 1px solid var(--glass-border); padding-top: 30px; text-align: center; color: var(--text-muted); font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+
+    /* --- MODAL --- */
+    .modal { position: fixed; inset: 0; z-index: 2000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; padding: 20px; }
+    .modal.show { opacity: 1; visibility: visible; }
+    .modal-content { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: 24px; padding: 40px; border: 1px solid var(--glass-border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.95); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal.show .modal-content { transform: scale(1); }
+    .modal-close { position: absolute; top: 24px; right: 24px; width: 36px; height: 36px; background: var(--glass); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; border: 1px solid var(--glass-border); }
+    .modal-close:hover { background: rgba(239, 68, 68, 0.2); color: var(--error); border-color: var(--error); }
+    
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; margin-bottom: 10px; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+    .form-control { width: 100%; padding: 16px; background: var(--bg-input); border: 1px solid var(--glass-border); border-radius: 14px; color: var(--text-main); font-family: inherit; transition: 0.3s; font-size: 1rem; }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+    
+    .btn-confirm { width: 100%; padding: 16px; border-radius: 14px; background: var(--primary-gradient); color: white; font-weight: 700; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font-size: 1rem; }
+    .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4); }
+    .btn-confirm:disabled { opacity: 0.7; cursor: not-allowed; }
+    
+    .btn-cancel { width: 100%; padding: 14px; margin-top: 12px; background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; border-radius: 14px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .btn-cancel:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--error); color: var(--error); }
+
+    /* DATA DISPLAY */
+    .qr-container { background: white; padding: 20px; border-radius: 20px; display: inline-block; margin: 20px auto; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .qr-container img { width: 200px; height: 200px; object-fit: contain; }
+    
+    .panel-data-container { background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 20px; padding: 30px; display: none; margin-top: 20px; animation: slideUp 0.5s ease; }
+    
+    .data-item { background: var(--bg-input); padding: 16px; border-radius: 12px; margin-bottom: 12px; position: relative; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+    .data-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .data-val { color: var(--primary); font-family: 'Courier New', monospace; font-weight: 700; font-size: 1.1rem; }
+    
+    .btn-copy { background: rgba(139, 92, 246, 0.1); color: var(--primary); border: none; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .btn-copy:hover { background: var(--primary); color: white; }
+
+    /* UTILS */
+    .toast { position: fixed; top: 20px; right: 20px; background: var(--bg-card); color: var(--text-main); padding: 16px 24px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 15px; transform: translateX(200%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10000; border: 1px solid var(--glass-border); border-left: 4px solid var(--primary); }
+    .toast.show { transform: translateX(0); }
+    
+    .fab-wa { position: fixed; bottom: 30px; right: 30px; width: 64px; height: 64px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; z-index: 900; text-decoration: none; box-shadow: 0 10px 30px rgba(37,211,102,0.4); transition: 0.3s; }
+    .fab-wa:hover { transform: scale(1.1) rotate(10deg); }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s ease; }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    
+    /* Responsive */
+    @media(max-width: 768px) {
+        .hero h1 { font-size: 2.8rem; }
+        .packages-grid { grid-template-columns: 1fr; }
+        .footer-grid { grid-template-columns: 1fr; }
+        .about-container { flex-direction: column; }
+        .about-image { width: 100%; height: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-animation"></div>
+
+  <div id="loading-screen">
+    <div class="loader-spinner"></div>
+    <div class="loader-text">CONNECTING TO SERVER...</div>
+  </div>
+
+  <header>
+    <div class="container">
+      <nav class="navbar">
+        <a href="#" class="logo" id="logoArea">
+          IPIN <span>MARKET</span>
+        </a>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <div class="hamburger" onclick="toggleDrawer()">
+              <i class="fas fa-bars-staggered"></i>
+            </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="drawer-overlay" onclick="toggleDrawer()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">Menu Utama</div>
+      <div class="drawer-close" onclick="toggleDrawer()">
+        <i class="fas fa-times"></i>
+      </div>
+    </div>
+    <ul class="drawer-menu">
+      <li><a href="#panels" onclick="toggleDrawer()"><i class="fas fa-server"></i> Order Panel</a></li>
+      <li><a href="#sewa" onclick="toggleDrawer()"><i class="fas fa-robot"></i> Sewa Bot</a></li>
+      <li><a href="#scripts" onclick="toggleDrawer()"><i class="fas fa-code"></i> Script Bot</a></li>
+      <li><a href="#faq" onclick="toggleDrawer()"><i class="fas fa-question-circle"></i> FAQ & Bantuan</a></li>
+      <li><a href="#" id="linkChannel" target="_blank"><i class="fas fa-bullhorn"></i> Saluran Update</a></li>
+      <li><a href="#" id="linkBotGroup" target="_blank"><i class="fas fa-users"></i> Grup Bot</a></li>
+      <li><a href="#" id="linkAdmin" target="_blank"><i class="fas fa-headset"></i> Kontak Admin</a></li>
+    </ul>
+  </div>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content reveal">
+        <div class="badge-hero"><i class="fas fa-check-circle"></i> #1 Trusted Digital Store</div>
+        <h1 id="heroTitle">Premium Digital<br>Solutions.</h1>
+        <p>Platform penyedia Panel Pterodactyl, Script Bot, dan Sewa Bot WhatsApp #1 di Indonesia. Nikmati transaksi otomatis, keamanan tingkat tinggi, dan dukungan teknis 24/7.</p>
+        <div class="hero-buttons">
+            <a href="#panels" class="cta-button" onclick="scrollToSection('panels')">
+              <i class="fas fa-rocket"></i> Mulai Sekarang
+            </a>
+            <a href="#about" class="cta-outline" onclick="scrollToSection('about')">
+              <i class="fas fa-info-circle"></i> Pelajari Lebih
+            </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-section reveal">
+      <div class="container">
+          <div class="stats-grid">
+              <div class="stat-item">
+                  <h3>1.5K+</h3>
+                  <p>Customer Puas</p>
+              </div>
+              <div class="stat-item">
+                  <h3>99.9%</h3>
+                  <p>Server Uptime</p>
+              </div>
+              <div class="stat-item">
+                  <h3>5K+</h3>
+                  <p>Transaksi Sukses</p>
+              </div>
+              <div class="stat-item">
+                  <h3>24/7</h3>
+                  <p>Support System</p>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section class="features-section" id="about">
+      <div class="container">
+          <div class="section-title reveal">
+              <h2>Kenapa Memilih <span style="color:var(--primary)">IPIN MARKET?</span></h2>
+              <p>Kami berkomitmen memberikan layanan terbaik dengan infrastruktur modern.</p>
+          </div>
+          <div class="features-grid">
+              <div class="feature-item reveal">
+                  <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                  <h3>Proses Otomatis</h3>
+                  <p>Tidak perlu menunggu admin. Sistem kami memproses pesanan Anda secara instan 24 jam non-stop setelah pembayaran terkonfirmasi.</p>
+              </div>
+              <div class="feature-item reveal" style="transition-delay: 0.1s">
+                  <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                  <h3>Aman & Terpercaya</h3>
+                  <p>Keamanan data dan privasi Anda adalah prioritas kami. Transaksi menggunakan QRIS yang terjamin aman dan terverifikasi.</p>
+              </div>
+              <div class="feature-item reveal" style="transition-delay: 0.2s">
+                  <div class="feature-icon"><i class="fas fa-server"></i></div>
+                  <h3>Server Premium</h3>
+                  <p>Panel Pterodactyl kami menggunakan node premium dengan anti-DDoS, NVMe SSD, dan koneksi 1Gbps untuk performa maksimal.</p>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <div id="dynamicSections"></div>
+
+  <section class="about-section">
+      <div class="container">
+          <div class="about-container reveal">
+              <div class="about-image">
+                  <i class="fas fa-store fa-5x" style="color:white;"></i>
+              </div>
+              <div class="about-text">
+                  <h2>Tentang <span style="color:var(--primary)">IPIN MARKET</span></h2>
+                  <p>Didirikan pada tahun 2024, IPIN MARKET hadir sebagai solusi bagi para developer bot WhatsApp dan pemilik komunitas yang membutuhkan infrastruktur server handal namun terjangkau.</p>
+                  <p>Kami menyediakan berbagai layanan mulai dari Hosting Panel Pterodactyl untuk menjalankan bot, Source Code Bot berkualitas tinggi yang selalu diupdate, hingga jasa Sewa Bot siap pakai bagi yang tidak ingin ribet.</p>
+                  <a href="#faq" class="cta-button" style="margin-top:20px;">
+                      <i class="fas fa-question-circle"></i> Lihat FAQ
+                  </a>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section class="faq-section" id="faq">
+      <div class="container">
+          <div class="section-title reveal">
+              <h2>Pertanyaan <span style="color:var(--primary)">Umum</span></h2>
+              <p>Jawaban untuk hal-hal yang sering ditanyakan pelanggan.</p>
+          </div>
+          <div class="faq-container" id="faqContainer">
+              <div class="faq-item reveal">
+                  <button class="faq-question">Bagaimana cara order? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Pilih produk yang diinginkan, klik "Pilih Paket", masukkan username Anda (untuk data), lalu bayar menggunakan QRIS. Sistem akan memproses otomatis.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Metode pembayaran apa saja? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Saat ini kami mendukung pembayaran QRIS yang bisa discan menggunakan All E-Wallet (DANA, OVO, GoPay, ShopeePay) dan Mobile Banking.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Berapa lama proses aktif? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Instan! Setelah pembayaran Anda terkonfirmasi sukses oleh sistem (biasanya hitungan detik), produk akan langsung muncul di layar Anda.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Apakah ada garansi? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Ya, kami memberikan garansi sesuai durasi sewa (30 hari) untuk Panel dan Sewa Bot jika terjadi kendala dari sisi server kami.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Bagaimana jika file Script error? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Pembelian Script (SC) sudah termasuk akses ke Grup Update. Anda bisa berdiskusi dan mendapatkan update perbaikan bug di sana.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Apakah Panel bisa diperpanjang? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Bisa. Silakan hubungi Admin sebelum masa aktif habis untuk melakukan perpanjangan data server Anda.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Apakah data Panel aman? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Sangat aman. Server kami menggunakan sistem isolasi container (Docker) sehingga data antar user tidak bisa saling intip.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Apa bedanya Panel biasa dan Unlimited? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Panel biasa memiliki batasan RAM dan CPU sesuai paket. Panel Unlimited memberikan resource maksimal yang tersedia di node (fair usage).</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Saya lupa password panel, bagaimana? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Silakan hubungi Admin dengan menyertakan bukti pembayaran terakhir untuk reset password.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Apakah boleh untuk mining/ddos? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>DILARANG KERAS. Akun yang terdeteksi melakukan aktivitas ilegal atau merugikan server akan disuspend permanen tanpa refund.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Bagaimana cara Sewa Bot? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Pilih paket Sewa Bot, bayar, dan Anda akan mendapatkan instruksi untuk menghubungi Admin guna aktivasi bot ke nomor Anda.</p></div>
+              </div>
+              <div class="faq-item reveal">
+                  <button class="faq-question">Jam operasional Admin? <i class="fas fa-chevron-down"></i></button>
+                  <div class="faq-answer"><p>Sistem web otomatis 24 jam. Support admin manusia tersedia pukul 08.00 - 22.00 WIB setiap hari.</p></div>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <footer>
+      <div class="container">
+          <div class="footer-grid">
+              <div class="footer-brand">
+                  <h3>IPIN <span>MARKET</span></h3>
+                  <p>Partner terbaik untuk kebutuhan digital Anda. Menyediakan layanan server dan bot berkualitas tinggi dengan harga yang bersahabat.</p>
+                  <div class="footer-social">
+                      <a href="#"><i class="fab fa-whatsapp"></i></a>
+                      <a href="#"><i class="fab fa-telegram"></i></a>
+                      <a href="#"><i class="fab fa-instagram"></i></a>
+                      <a href="#"><i class="fab fa-youtube"></i></a>
+                  </div>
+              </div>
+              <div class="footer-col">
+                  <h4>Produk</h4>
+                  <ul>
+                      <li><a href="#panels">Panel Pterodactyl</a></li>
+                      <li><a href="#sewa">Sewa Bot WA</a></li>
+                      <li><a href="#scripts">Source Code</a></li>
+                      <li><a href="#">Jasa Install</a></li>
+                  </ul>
+              </div>
+              <div class="footer-col">
+                  <h4>Dukungan</h4>
+                  <ul>
+                      <li><a href="#faq">FAQ</a></li>
+                      <li><a href="#">Syarat & Ketentuan</a></li>
+                      <li><a href="#">Kebijakan Privasi</a></li>
+                      <li><a href="#">Hubungi Kami</a></li>
+                  </ul>
+              </div>
+              <div class="footer-col">
+                  <h4>Kontak</h4>
+                  <ul>
+                      <li><i class="fas fa-envelope"></i> admin@ipin.market</li>
+                      <li><i class="fas fa-phone"></i> +62 822-6116-9349</li>
+                      <li><i class="fas fa-map-marker-alt"></i> Server Indonesia</li>
+                  </ul>
+              </div>
+          </div>
+          <div class="footer-bottom">
+              <p>&copy; 2024 IPIN MARKET. All Rights Reserved.</p>
+              <p>Designed with <i class="fas fa-heart" style="color:var(--error)"></i> for Community</p>
+          </div>
+      </div>
+  </footer>
+
+  <a href="#" target="_blank" class="fab-wa" id="fabWa">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <div class="modal" id="checkoutModal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3>Checkout</h3>
+            <i class="fas fa-times" style="cursor:pointer; color:var(--text-muted);" onclick="closeModal()"></i>
+        </div>
+
+        <div id="stepForm">
+            <h4 id="modalProdName" style="color:var(--primary); margin-bottom:15px; font-size:1.1rem;"></h4>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label>Username / Nama Kamu</label>
+                    <input type="text" name="customUsername" class="form-control" placeholder="Contoh: ipin123" required pattern="[a-z0-9]{3,20}" autocomplete="off">
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Username akan digunakan untuk data login/identitas.</small>
+                </div>
+                <input type="hidden" name="days" value="30">
+
+                <button type="submit" class="btn-confirm" id="btnPay" style="width:100%">
+                    <i class="fas fa-qrcode"></i> Buat Tagihan QRIS
+                </button>
+            </form>
+        </div>
+
+        <div id="stepPayment" style="display:none; text-align:center;">
+            <div style="background:white; padding:15px; border-radius:16px; display:inline-block; margin-bottom:15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                <div id="qrcode"></div>
+            </div>
+            <p style="margin-bottom:5px; color:var(--text-muted);">Total Pembayaran</p>
+            <h2 id="payAmount" style="color:var(--primary); margin-bottom:15px;">Rp 0</h2>
+            <div style="background:rgba(245, 158, 11, 0.1); color:var(--warning); padding:10px; border-radius:12px; font-size:0.9rem; margin-bottom:15px; font-weight:600;" id="payStatus">
+                <i class="fas fa-spinner fa-spin"></i> Menunggu Pembayaran...
+            </div>
+            
+            <div class="payment-actions" style="display:flex; flex-direction:column; gap:10px;">
+                <button onclick="manualCheck()" class="btn-buy-card" id="manualCheckBtn">
+                    <i class="fas fa-sync-alt"></i> Cek Status Pembayaran
+                </button>
+                <div id="checkingPayment" style="display:none; padding:10px; color:var(--text-muted);">
+                    <i class="fas fa-circle-notch fa-spin"></i> Memverifikasi...
+                </div>
+                <button onclick="cancelPayment()" class="btn-cancel">Batalkan Pesanan</button>
+            </div>
+        </div>
+
+        <div id="stepSuccess" class="panel-data-container">
+            </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <i class="fas fa-info-circle"></i> <span id="toastMessage">Message</span>
+  </div>
+
+  <script>
+    /* --- GLOBAL VARIABLES --- */
+    let CONFIG = {};
+    let currentProduct = null;
+    let currentOrderId = null;
+    let checkInterval = null;
+    let currentSessionId = null; // Alias for OrderId in cancel logic
+    let currentOrderData = null; // Store data for retries
+
+    /* --- THEME TOGGLE LOGIC --- */
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        updateThemeIcon(isLight);
+    }
+
+    function updateThemeIcon(isLight) {
+        const icon = document.querySelector('#themeToggle i');
+        if(isLight) {
+            icon.className = 'fas fa-sun';
+            icon.style.color = '#f59e0b';
+        } else {
+            icon.className = 'fas fa-moon';
+            icon.style.color = '#f8fafc';
+        }
+    }
+
+    // Check saved theme
+    if(localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+        updateThemeIcon(true);
+    }
+
+    /* --- FAQ ACCORDION LOGIC --- */
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    faqQuestions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const answer = btn.nextElementSibling;
+            const isActive = btn.classList.contains('active');
+            
+            // Close all others
+            document.querySelectorAll('.faq-question').forEach(b => {
+                b.classList.remove('active');
+                b.nextElementSibling.style.maxHeight = null;
+            });
+
+            if (!isActive) {
+                btn.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + "px";
+            }
+        });
+    });
+
+    /* --- INITIALIZATION --- */
+    window.addEventListener('load', async () => {
+        try {
+            const [cfgRes, prodRes] = await Promise.all([
+                fetch('/alifalfrlggwp7789'),
+                fetch('/api/products')
+            ]);
+            CONFIG = await cfgRes.json();
+            const prodData = await prodRes.json();
+            
+            // Apply Branding
+            document.title = CONFIG.STORE_NAME;
+            document.getElementById('logoArea').innerHTML = `IPIN <span>MARKET</span>`;
+            document.getElementById('fabWa').href = CONFIG.CONTACT_ADMIN;
+            
+            // Links
+            if (CONFIG.CHANNEL_LINK) document.getElementById('linkChannel').href = CONFIG.CHANNEL_LINK;
+            if (CONFIG.BOT_GROUP_LINK) document.getElementById('linkBotGroup').href = CONFIG.BOT_GROUP_LINK;
+            if (CONFIG.STORE_GROUP_LINK) document.getElementById('linkStoreGroup').href = CONFIG.STORE_GROUP_LINK;
+            if (CONFIG.CONTACT_ADMIN) document.getElementById('linkAdmin').href = CONFIG.CONTACT_ADMIN;
+
+            // Render Products
+            if(prodData.success) {
+                renderDynamicSections(prodData.data);
+            }
+            
+            // Remove Loader
+            const loader = document.getElementById('loading-screen');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.visibility = 'hidden', 500);
+
+            // Init Scroll Animation
+            initScrollAnimations();
+
+        } catch(e) { 
+            console.error("Init Error:", e);
+            showToast('Gagal memuat data toko. Refresh halaman.', 'error');
+            document.getElementById('loading-screen').style.display = 'none';
+        }
+    });
+
+    function initScrollAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    // Optional: unobserve after reveal
+                    // observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    /* --- DYNAMIC RENDERER --- */
+    function renderDynamicSections(products) {
+        const container = document.getElementById('dynamicSections');
+        
+        const groups = {
+            'panel': { 
+                title: 'Order Panel', 
+                subtitle: 'Hosting Pterodactyl Anti-DDoS High Performance',
+                bg: 'transparent' 
+            },
+            'sewa': { 
+                title: 'Sewa Bot WhatsApp', 
+                subtitle: 'Bot On 24 Jam Tanpa Perlu Siapkan Server',
+                bg: 'var(--bg-card)' 
+            },
+            'sc': { 
+                title: 'Store Script & Bug', 
+                subtitle: 'Source Code Berkualitas & Terupdate',
+                bg: 'transparent' 
+            }
+        };
+
+        for (const [type, meta] of Object.entries(groups)) {
+            const items = products.filter(p => p.type === type);
+            if (items.length > 0) {
+                const section = document.createElement('section');
+                section.className = 'packages';
+                section.id = type + 's'; // e.g., panels, sewas, scs
+                if (type === 'sewa') section.style.background = meta.bg;
+                if (type === 'sewa') section.style.borderTop = '1px solid var(--glass-border)';
+                if (type === 'sewa') section.style.borderBottom = '1px solid var(--glass-border)';
+                
+                let cards = items.map(p => createCard(p)).join('');
+                
+                section.innerHTML = `
+                    <div class="container">
+                        <div class="section-title reveal">
+                            <h2>${meta.title}</h2>
+                            <p>${meta.subtitle}</p>
+                        </div>
+                        <div class="packages-grid">
+                            ${cards}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(section);
+            }
+        }
+    }
+
+    function createCard(p) {
+        // Parse features safely
+        let feats = [];
+        try { 
+            feats = typeof p.features === 'string' ? JSON.parse(p.features) : p.features; 
+        } catch { feats = ["Fitur Terbaik"]; }
+        
+        const featHtml = feats.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('');
+        const badge = p.badge ? `<div class="package-badge"><i class="fas fa-star"></i> ${p.badge}</div>` : '';
+        
+        // Price formatting
+        const priceFormatted = Number(p.price).toLocaleString('id-ID');
+        
+        return `
+            <div class="package-card reveal">
+                ${badge}
+                <div class="package-name">${p.name}</div>
+                <div class="package-price">Rp ${priceFormatted} <span style="font-size:0.8rem; font-weight:400; margin-left:5px;">/Bulan</span></div>
+                
+                <div style="width:100%; height:1px; background:var(--glass-border); margin-bottom:20px;"></div>
+                
+                <ul class="package-features">
+                    ${featHtml}
+                </ul>
+                
+                <button class="btn-buy-card" onclick='openCheckout(${JSON.stringify(p)})'>
+                   <i class="fas fa-shopping-cart"></i> Pilih Paket
+                </button>
+            </div>
+        `;
+    }
+
+    /* --- CHECKOUT LOGIC --- */
+    function openCheckout(product) {
+        currentProduct = product;
+        document.getElementById('modalProdName').innerText = product.name;
+        document.getElementById('checkoutModal').classList.add('show');
+        
+        // Reset State UI
+        document.getElementById('stepForm').style.display = 'block';
+        document.getElementById('stepPayment').style.display = 'none';
+        document.getElementById('stepSuccess').classList.remove('show');
+        document.getElementById('panelDataContainer').classList.remove('show');
+        document.getElementById('orderForm').reset();
+        
+        // Clean interval
+        if (checkInterval) clearInterval(checkInterval);
+    }
+
+    function closeModal() {
+        document.getElementById('checkoutModal').classList.remove('show');
+        if (checkInterval) clearInterval(checkInterval);
+        currentSessionId = null;
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnPay');
+        const formData = new FormData(e.target);
+        const username = Object.fromEntries(formData).customUsername;
+        
+        // Validation
+        if (!/^[a-z0-9]{3,20}$/.test(username)) {
+            showToast('Username wajib huruf kecil & angka (3-20 karakter)', 'error');
+            return;
+        }
+
+        // Lock Button
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Memproses...';
+        
+        currentOrderId = 'TRX-' + Date.now();
+        currentSessionId = currentOrderId;
+        currentOrderData = { username, product: currentProduct };
+
+        try {
+            const res = await axios.post('/api/create-qris', {
+                order_id: currentOrderId,
+                amount: currentProduct.price,
+                username: username,
+                product_id: currentProduct.id,
+                product_name: currentProduct.name // Fallback
+            });
+
+            if (res.data.success) {
+                // Switch to Payment View
+                document.getElementById('stepForm').style.display = 'none';
+                document.getElementById('stepPayment').style.display = 'block';
+                document.getElementById('payAmount').innerText = 'Rp ' + Number(currentProduct.price).toLocaleString('id-ID');
+                
+                // Render QR
+                document.getElementById('qrcode').innerHTML = `<img src="${res.data.qr_image}" style="width:100%; border-radius:10px;">`;
+                
+                // Start polling
+                startCheck();
+                showToast('Tagihan berhasil dibuat. Silakan scan QRIS.', 'success');
+            }
+        } catch(err) {
+            console.error(err);
+            showToast('Gagal membuat tagihan. Coba lagi.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-qrcode"></i> Buat Tagihan QRIS';
+        }
+    });
+
+    /* --- PAYMENT CHECKING --- */
+    function startCheck() {
+        if(checkInterval) clearInterval(checkInterval);
+        let attempts = 0;
+        
+        checkInterval = setInterval(async () => {
+            attempts++;
+            if (attempts > 300) { // 15 mins timeout
+                clearInterval(checkInterval); 
+                showToast('Waktu pembayaran habis.', 'warning'); 
+                return;
+            }
+            // Auto check every 3s
+            await manualCheck(true);
+        }, 3000);
+    }
+
+    async function manualCheck(auto = false) {
+        try {
+            // UI Update if manual click
+            if(!auto) {
+                const btn = document.getElementById('manualCheckBtn');
+                const loader = document.getElementById('checkingPayment');
+                btn.style.display = 'none';
+                loader.style.display = 'block';
+            }
+
+            const res = await axios.get(`/api/check-payment?order_id=${currentOrderId}&amount=${currentProduct.price}`);
+            
+            if (res.data.success && (res.data.transaction?.status === 'completed' || res.data.transaction?.status === 'paid')) {
+                // PAYMENT SUCCESS
+                document.getElementById('payStatus').innerHTML = '<i class="fas fa-check-circle"></i> PEMBAYARAN BERHASIL!';
+                document.getElementById('payStatus').style.background = 'rgba(16, 185, 129, 0.2)';
+                document.getElementById('payStatus').style.color = 'var(--success)';
+                
+                // Check delivery data
+                if (res.data.delivery || res.data.panel_data) {
+                    clearInterval(checkInterval);
+                    displaySuccessResult(res.data);
+                } else {
+                    if(!auto) showToast('Sedang memproses produk... Tunggu sebentar.', 'info');
+                }
+            } else if (!auto) {
+                showToast('Pembayaran belum masuk. Coba refresh.', 'warning');
+            }
+        } catch (e) {
+            if (!auto) showToast('Gagal cek status.', 'error');
+        } finally {
+            if (!auto) {
+                document.getElementById('manualCheckBtn').style.display = 'block';
+                document.getElementById('checkingPayment').style.display = 'none';
+            }
+        }
+    }
+
+    /* --- SUCCESS DISPLAY LOGIC --- */
+    function displaySuccessResult(data) {
+        const container = document.getElementById('stepSuccess');
+        document.getElementById('stepPayment').style.display = 'none';
+        
+        let delivery = data.delivery;
+        let html = '';
+
+        // Success Header
+        html += `
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; animation: pulse 2s infinite;">
+                 <i class="fas fa-check" style="font-size: 32px; color: var(--success);"></i>
+              </div>
+              <h3 style="color: var(--text-main); font-size:1.5rem; margin-bottom:10px;">Transaksi Berhasil!</h3>
+              <p style="color:var(--text-muted); font-size:0.95rem;">Terima kasih telah berbelanja di IPIN MARKET.</p>
+            </div>
+        `;
+
+        if (delivery) {
+            
+            // --- CASE 1: PANEL CREDENTIALS ---
+            if (delivery.delivery_type === 'panel_credentials') {
+                const d = delivery.payload;
+                html += `
+                    <div style="margin-bottom:20px;">
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom:10px; font-weight:600; text-transform:uppercase;">Data Akun Panel Anda:</p>
+                        
+                        <div class="data-item">
+                            <span class="data-label">URL</span>
+                            <div class="data-val">${d.panel_url}</div>
+                            <button class="btn-copy" onclick="copyText('${d.panel_url}')" title="Copy URL"><i class="fas fa-copy"></i></button>
+                        </div>
+                        
+                        <div class="data-item">
+                            <span class="data-label">Username</span>
+                            <div class="data-val">${d.username}</div>
+                            <button class="btn-copy" onclick="copyText('${d.username}')" title="Copy Username"><i class="fas fa-copy"></i></button>
+                        </div>
+                        
+                        <div class="data-item">
+                            <span class="data-label">Password</span>
+                            <div class="data-val">${d.password}</div>
+                            <button class="btn-copy" onclick="copyText('${d.password}')" title="Copy Password"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+                    
+                    <a href="${d.panel_url}" target="_blank" class="btn-confirm" style="width:100%; background:var(--success); margin-bottom:10px;">
+                        <i class="fas fa-sign-in-alt"></i> Login Panel Sekarang
+                    </a>
+                    <p style="font-size:0.8rem; color:var(--error); text-align:center;">*Simpan data ini sekarang! Data tidak akan muncul lagi.</p>
+                `;
+            } 
+            
+            // --- CASE 2: DOWNLOAD LINK (SCRIPT) ---
+            else if (delivery.delivery_type === 'download_link') {
+                const d = delivery.payload;
+                html += `
+                    <div style="background:var(--bg-input); padding:20px; border-radius:12px; border:1px solid var(--glass-border); margin-bottom:20px; text-align:center;">
+                        <i class="fas fa-file-archive fa-3x" style="color:var(--primary); margin-bottom:15px;"></i>
+                        <h4 style="color:var(--text-main); margin-bottom:5px;">${d.file_name}</h4>
+                        <p style="color:var(--text-muted); font-size:0.9rem;">File script siap diunduh.</p>
+                    </div>
+
+                    <a href="${d.download_url}" target="_blank" class="btn-confirm" style="width:100%; margin-bottom:15px;">
+                        <i class="fas fa-download"></i> Download Script
+                    </a>
+                    
+                    <a href="${d.group_link}" target="_blank" class="btn-buy-card" style="width:100%">
+                        <i class="fab fa-whatsapp"></i> Gabung Grup Update
+                    </a>
+                `;
+            }
+            
+            // --- CASE 3: INSTRUCTIONS (SEWA BOT) ---
+            else if (delivery.delivery_type === 'instructions') {
+                const d = delivery.payload;
+                html += `
+                    <div style="background:rgba(34, 211, 238, 0.1); padding:20px; border-radius:12px; border:1px solid rgba(34, 211, 238, 0.3); margin-bottom:20px;">
+                        <h4 style="color:var(--secondary); margin-bottom:10px;"><i class="fas fa-info-circle"></i> Instruksi Aktivasi</h4>
+                        <p style="color:var(--text-main); font-size:0.95rem; line-height:1.6;">${d.instructions}</p>
+                    </div>
+
+                    <a href="${d.wa_link}" target="_blank" class="btn-confirm" style="width:100%; background:#25D366; margin-bottom:15px;">
+                        <i class="fab fa-whatsapp"></i> Chat Admin untuk Aktivasi
+                    </a>
+                    
+                    <a href="${d.group_link}" target="_blank" class="btn-buy-card" style="width:100%">
+                        <i class="fas fa-users"></i> Gabung Grup Support
+                    </a>
+                `;
+            }
+        } 
+        
+        // --- FALLBACK (LEGACY) ---
+        else if (data.panel_data) {
+            const d = data.panel_data;
+            html += `
+                <div class="data-item"><span class="data-label">User</span><div class="data-val">${d.username}</div></div>
+                <div class="data-item"><span class="data-label">Pass</span><div class="data-val">${d.password}</div></div>
+                <a href="${d.panel_url}" class="btn-confirm" target="_blank" style="width:100%; margin-top:15px;">Login Panel</a>
+            `;
+        }
+
+        container.innerHTML = html;
+        container.classList.add('show');
+        showToast('Pesanan selesai!', 'success');
+    }
+
+    // UTILS
+    function copyText(text) {
+        navigator.clipboard.writeText(text);
+        showToast('Teks berhasil disalin!', 'success');
+    }
+
+    async function cancelPayment() {
+        if (!currentSessionId) { closeModal(); return; }
+        const btn = document.querySelector('.btn-cancel');
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Membatalkan...';
+        
+        try {
+            await axios.post('/api/cancel-payment', { order_id: currentSessionId });
+            showToast('Pesanan dibatalkan.', 'success');
+            closeModal();
+        } catch (e) {
+            closeModal();
+        } finally {
+            btn.innerHTML = 'Batalkan Transaksi';
+        }
+    }
+
+    function toggleDrawer() {
+        document.querySelector('.drawer-overlay').classList.toggle('show');
+        document.querySelector('.drawer').classList.toggle('show');
+    }
+
+    function scrollToSection(id) {
+        const el = document.getElementById(id);
+        if(el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showToast(msg, type = 'info') {
+        const t = document.getElementById('toast');
+        const icon = t.querySelector('i');
+        document.getElementById('toastMessage').innerText = msg;
+        
+        t.className = 'toast show';
+        if(type === 'error') {
+            t.style.borderLeftColor = 'var(--error)';
+            icon.className = 'fas fa-times-circle';
+            icon.style.color = 'var(--error)';
+        } else if(type === 'success') {
+            t.style.borderLeftColor = 'var(--success)';
+            icon.className = 'fas fa-check-circle';
+            icon.style.color = 'var(--success)';
+        } else {
+            t.style.borderLeftColor = 'var(--primary)';
+            icon.className = 'fas fa-info-circle';
+            icon.style.color = 'var(--primary)';
+        }
+        
+        setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    // Modal Outside Click
+    document.getElementById('checkoutModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('checkoutModal')) closeModal();
+    });
+  </script>
+</body>
+</html>
